@@ -151,9 +151,7 @@ public class KillBillCacheController<K, V> implements CacheController<K, V> {
         try {
             value = baseCacheLoader.compute(key, cacheLoaderArgument);
         } catch (final Exception e) {
-            // Remove noisy log (might be expected, see https://github.com/killbill/killbill/issues/842)
-            //logger.warn("Unable to compute cached value for key='{}' and cacheLoaderArgument='{}'", key, cacheLoaderArgument, e);
-            throw new RuntimeException(e);
+            return null;
         }
         return value;
     }

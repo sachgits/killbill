@@ -46,7 +46,18 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 
-public class TestTenantKV extends TestJaxrsBase {
+public class TestTenant extends TestJaxrsBase {
+
+    @Test(groups = "slow")
+    public void testGetTenant() throws Exception {
+        // One that exists
+        final Tenant tenant = tenantApi.getTenantByApiKey(DEFAULT_API_KEY, requestOptions);
+        Assert.assertEquals(tenant.getApiKey(), DEFAULT_API_KEY);
+
+        // One that does not exist - our java client library will transform the 404 into a null object response
+        final Tenant tenant2 = tenantApi.getTenantByApiKey("something unknown", requestOptions);
+        Assert.assertNull(tenant2);
+    }
 
     @Test(groups = "slow", description = "Upload and retrieve a per plugin config")
     public void testPerTenantPluginConfig() throws Exception {

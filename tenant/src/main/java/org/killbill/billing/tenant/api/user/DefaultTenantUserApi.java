@@ -96,8 +96,8 @@ public class DefaultTenantUserApi implements TenantUserApi {
             if (data.getApiKey() != null && getTenantByApiKey(data.getApiKey()) != null) {
                 throw new TenantApiException(ErrorCode.TENANT_ALREADY_EXISTS, data.getExternalKey());
             }
-        } catch (final RuntimeException e) {
-            if (e.getCause() instanceof IllegalStateException) {
+        } catch (final TenantApiException e) {
+            if (e.getCode() == ErrorCode.TENANT_DOES_NOT_EXIST_FOR_API_KEY.getCode()) {
                 // could happen exemption, stating that the key is not found
             } else {
                 throw e;
