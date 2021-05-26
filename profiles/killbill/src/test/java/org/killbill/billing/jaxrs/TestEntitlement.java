@@ -1412,7 +1412,66 @@ public class TestEntitlement extends TestJaxrsBase {
         Assert.assertEquals(subscription.getPrices().get(2).getPhaseName(), "super-monthly-evergreen");
         Assert.assertNull(subscription.getPrices().get(2).getFixedPrice());
         Assert.assertEquals(subscription.getPrices().get(2).getRecurringPrice(), new BigDecimal("1200.00"));
+    }
 
 
+
+    @Test(groups = "slow")
+    public void testXXX() throws Exception {
+
+        // effDt = 2013-02-08T00:00:00+00:00
+        callbackServlet.pushExpectedEvents(ExtBusEventType.TENANT_CONFIG_CHANGE);
+        String catalog1 = uploadTenantCatalog("org/killbill/billing/server/SpyCarBasic.xml", true);
+        callbackServlet.assertListenerStatus();
+        Assert.assertNotNull(catalog1);
+
+        // effDt = 2014-02-08T00:00:00+00:00
+        callbackServlet.pushExpectedEvents(ExtBusEventType.TENANT_CONFIG_CHANGE);
+        String catalog2 = uploadTenantCatalog("org/killbill/billing/server/SpyCarBasic.v2.xml", true);
+        callbackServlet.assertListenerStatus();
+        Assert.assertNotNull(catalog2);
+
+
+        final DateTime initialDate = new DateTime(2014, 2, 1, 0, 3, 42, 0);
+        clock.setDeltaFromReality(initialDate.getMillis() - clock.getUTCNow().getMillis());
+
+        final Account accountJson = createAccountWithDefaultPaymentMethod();
+
+        final Subscription input = new Subscription();
+        input.setAccountId(accountJson.getAccountId());
+        input.setPlanName("super-discount-monthly");
+
+        callbackServlet.pushExpectedEvents(ExtBusEventType.SUBSCRIPTION_CREATION,
+                                           ExtBusEventType.SUBSCRIPTION_CREATION,
+                                           ExtBusEventType.ENTITLEMENT_CREATION,
+                                           ExtBusEventType.ACCOUNT_CHANGE,  // The BCD is updated in that case
+                                           ExtBusEventType.INVOICE_CREATION,
+                                           ExtBusEventType.PAYMENT_SUCCESS,
+                                           ExtBusEventType.INVOICE_PAYMENT_SUCCESS);
+        final Subscription entitlementJson = subscriptionApi.createSubscription(input,
+                                                                                null,
+                                                                                null,
+                                                                                false,
+                                                                                false,
+                                                                                false,
+                                                                                true,
+                                                                                DEFAULT_WAIT_COMPLETION_TIMEOUT_SEC,
+                                                                                NULL_PLUGIN_PROPERTIES,
+                                                                                requestOptions);
+        Assert.assertEquals(entitlementJson.getPlanName(), "super-discount-monthly");
+        callbackServlet.assertListenerStatus();
+
+
+        // Go to catalog V2
+        clock.addDays(8); // 2014-02-09
+
+        callbackServlet.pushExpectedEvents(ExtBusEventType.SUBSCRIPTION_CHANGE, ExtBusEventType.SUBSCRIPTION_CHANGE);
+        subscriptionApi.changeSubscriptionPlan(entitlementJson.getSubscriptionId(), input, null, BillingActionPolicy.IMMEDIATE, NULL_PLUGIN_PROPERTIES, requestOptions);
+        Subscription refreshedSubscription1 = subscriptionApi.getSubscription(entitlementJson.getSubscriptionId(), requestOptions);
+        callbackServlet.assertListenerStatus();
+        Assert.assertNotNull(refreshedSubscription1);
+
+        final Bundles bundles = accountApi.getAccountBundles(accountJson.getAccountId(), null, null, requestOptions);
+        Assert.assertEquals(1, bundles.size());
     }
 }

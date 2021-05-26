@@ -175,6 +175,29 @@
                 </recurring>
             </finalPhase>
         </plan>
+        <plan name="super-discount-monthly">
+            <product>Super</product>
+            <initialPhases>
+            </initialPhases>
+            <finalPhase type="EVERGREEN">
+                <duration>
+                    <unit>UNLIMITED</unit>
+                </duration>
+                <recurring>
+                    <billingPeriod>MONTHLY</billingPeriod>
+                    <recurringPrice>
+                        <price>
+                            <currency>GBP</currency>
+                            <value>500.00</value>
+                        </price>
+                        <price>
+                            <currency>USD</currency>
+                            <value>800.00</value>
+                        </price>
+                    </recurringPrice>
+                </recurring>
+            </finalPhase>
+        </plan>
     </plans>
     <priceLists>
         <defaultPriceList name="DEFAULT">
@@ -182,6 +205,7 @@
                 <plan>standard-monthly</plan>
                 <plan>sports-monthly</plan>
                 <plan>super-monthly</plan>
+                <plan>super-discount-monthly</plan>
             </plans>
         </defaultPriceList>
     </priceLists>

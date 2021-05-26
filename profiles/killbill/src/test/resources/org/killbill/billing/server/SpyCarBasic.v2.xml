@@ -199,6 +199,29 @@
                 </recurring>
             </finalPhase>
         </plan>
+        <plan name="super-discount-monthly">
+            <product>Super</product>
+            <initialPhases>
+            </initialPhases>
+            <finalPhase type="EVERGREEN">
+                <duration>
+                    <unit>UNLIMITED</unit>
+                </duration>
+                <recurring>
+                    <billingPeriod>MONTHLY</billingPeriod>
+                    <recurringPrice>
+                        <price>
+                            <currency>GBP</currency>
+                            <value>500.00</value>
+                        </price>
+                        <price>
+                            <currency>USD</currency>
+                            <value>800.00</value>
+                        </price>
+                    </recurringPrice>
+                </recurring>
+            </finalPhase>
+        </plan>
     </plans>
     <priceLists>
         <defaultPriceList name="DEFAULT">
@@ -209,5 +232,10 @@
                 <plan>super-annual</plan>
             </plans>
         </defaultPriceList>
+        <childPriceList name="discount">
+            <plans>
+                <plan>super-discount-monthly</plan>
+            </plans>
+        </childPriceList>
     </priceLists>
 </catalog>
